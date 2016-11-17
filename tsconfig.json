@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "declaration": true,
+        "experimentalDecorators": true,
         "outFile": "build/base.js"
     },
     "files": [
