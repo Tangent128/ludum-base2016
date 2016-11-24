@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "outFile": "build/base.js"
+    },
+    "files": [
+        "src/index.ts"
+    ]
+}
