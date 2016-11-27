@@ -51,7 +51,7 @@ namespace ECS {
         };
 
         public abstract runPhysics();
-        public abstract runRender();
+        public abstract runRender(cx: CanvasRenderingContext2D);
     };
 
 
@@ -63,7 +63,10 @@ namespace ECS {
         private physicsTimeout: number = null;
         private renderTimeout: number = null;
 
-        constructor(private room: Room) {
+        constructor(
+            private room: Room,
+            private cx: CanvasRenderingContext2D
+        ) {
         };
 
         public start() {
@@ -106,7 +109,7 @@ namespace ECS {
         private renderTick() {
             let now = (new Date()).getTime();
 
-            this.room.runRender();
+            this.room.runRender(this.cx);
 
             // schedule next tick
             this.start();
