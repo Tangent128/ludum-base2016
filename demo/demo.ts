@@ -58,3 +58,61 @@ class SpanTest {
         this.loop.start();
     };
 };
+
+///////////////////////
+
+class DebugRenderSystem extends ECS.System<Render.HasRenderDebugBox> {
+    constructor(
+        public renderer: Render.RenderList
+    ) {
+        super(Render.HasRenderDebugBox);
+    };
+    process(item: Render.HasRenderDebugBox) {
+        this.renderer.add(item.RenderDebugBox);
+    };
+};
+
+class DebugRenderRoom extends ECS.Room {
+    private renderer = new Render.RenderList();
+    public Layer = new Render.Layer(1);
+
+    private DebugRenderSystem = new DebugRenderSystem(this.renderer);
+
+    runPhysics() {
+    };
+    runRender(cx: CanvasRenderingContext2D) {
+        this.renderer.reset();
+
+        this.DebugRenderSystem.run(this.Entities);
+
+        this.renderer.drawTo(cx);
+    };
+
+    addBox(box: Render.Box) {
+        let entity: ECS.Entity & Render.HasRenderDebugBox = {
+            RenderDebugBox: new Render.RenderDebugBox(this.Layer, box)
+        };
+        this.add(entity);
+    };
+};
+
+@Applet.Bind("canvas")
+class RenderTest {
+
+    private room = new DebugRenderRoom(20);
+
+    private loop: ECS.Loop;
+
+    constructor(private element: HTMLCanvasElement) {
+
+        let cx = element.getContext("2d");
+
+        this.room.addBox(new Render.Box(0,0, 16,16));
+        this.room.addBox(new Render.Box(12,100, 20,20));
+        this.room.addBox(new Render.Box(50,70, 25,64));
+
+        this.loop = new ECS.Loop(this.room, cx);
+        this.loop.start();
+    };
+
+};
