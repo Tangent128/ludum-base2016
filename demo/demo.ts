@@ -61,22 +61,11 @@ class SpanTest {
 
 ///////////////////////
 
-class DebugRenderSystem extends ECS.System<Render.HasRenderDebugBox> {
-    constructor(
-        public renderer: Render.RenderList
-    ) {
-        super(Render.HasRenderDebugBox);
-    };
-    process(item: Render.HasRenderDebugBox) {
-        this.renderer.add(item.RenderDebugBox);
-    };
-};
-
 class DebugRenderRoom extends ECS.Room {
     private renderer = new Render.RenderList();
     public Layer = new Render.Layer(1);
 
-    private DebugRenderSystem = new DebugRenderSystem(this.renderer);
+    private DebugRenderSystem = new RenderDebug.System(this.renderer);
 
     runPhysics() {
     };
@@ -89,8 +78,8 @@ class DebugRenderRoom extends ECS.Room {
     };
 
     addBox(box: Render.Box) {
-        let entity: ECS.Entity & Render.HasRenderDebugBox = {
-            RenderDebugBox: new Render.RenderDebugBox(this.Layer, box)
+        let entity: ECS.Entity & RenderDebug.HasBox = {
+            RenderDebugBox: new RenderDebug.Box(this.Layer, box)
         };
         this.add(entity);
     };

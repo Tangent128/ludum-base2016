@@ -15,27 +15,6 @@ namespace Render {
         render(cx: CanvasRenderingContext2D);
     };
 
-    export class RenderDebugBox implements Renderable {
-        constructor(
-            public Layer: Layer,
-            public bounds: Box,
-            public color = "#f00"
-        ) {};
-
-        public render(cx: CanvasRenderingContext2D) {
-            let b = this.bounds;
-            cx.fillStyle = this.color;
-            cx.fillRect(b.x, b.y, b.w, b.h);
-        };
-    };
-
-    export interface HasRenderDebugBox {
-        RenderDebugBox: RenderDebugBox
-    };
-    export function HasRenderDebugBox(item: any): item is HasRenderDebugBox {
-        return item.RenderDebugBox != null;
-    };
-
     /**
      * A global transform for many onscreen objects.
      */
@@ -106,6 +85,5 @@ namespace Render {
 
         };
     };
-
 
 };
