@@ -54,7 +54,7 @@ class SpanTest {
 
         this.room.Entities.push(entity);
 
-        this.loop = new ECS.Loop(this.room);
+        this.loop = new ECS.Loop(this.room, null);
         this.loop.start();
     };
 };
