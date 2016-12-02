@@ -63,11 +63,37 @@ class SpanTest {
 
 class DebugRenderRoom extends ECS.Room {
     private renderer = new Render.RenderList();
-    public Layer = new Render.Layer(1);
+
+    public Camera = new Render.Camera();
+
+    public FarBgLayer = new Render.Layer(1, 0);
+    public BgLayer = new Render.Layer(8, 0.5);
+    public MainLayer = new Render.Layer(10, 1);
 
     private DebugRenderSystem = new RenderDebug.System(this.renderer);
 
+    constructor(fps: number) {
+        super(fps);
+        this.FarBgLayer.Camera = this.Camera;
+        this.BgLayer.Camera = this.Camera;
+        this.MainLayer.Camera = this.Camera;
+    };
+
+    t = 0;
+    dt = 1;
+
     runPhysics() {
+        this.t += this.dt;
+        if(this.t > 20) {
+            this.dt = -1;
+        }
+        if(this.t < 0) {
+            this.dt = 1;
+        }
+
+        this.Camera.x = this.t * 3;
+        this.Camera.y = this.t + 5;
+        this.Camera.zoom = 1 + this.t/20;
     };
     runRender(cx: CanvasRenderingContext2D) {
         this.renderer.reset();
@@ -77,9 +103,9 @@ class DebugRenderRoom extends ECS.Room {
         this.renderer.drawTo(cx);
     };
 
-    addBox(box: Render.Box) {
+    addBox(box: Render.Box, layer: Render.Layer, color = "#f00") {
         let entity: ECS.Entity & RenderDebug.HasBox = {
-            RenderDebugBox: new RenderDebug.Box(this.Layer, box)
+            RenderDebugBox: new RenderDebug.Box(layer, box, color)
         };
         this.add(entity);
     };
@@ -96,9 +122,13 @@ class RenderTest {
 
         let cx = element.getContext("2d");
 
-        this.room.addBox(new Render.Box(0,0, 16,16));
-        this.room.addBox(new Render.Box(12,100, 20,20));
-        this.room.addBox(new Render.Box(50,70, 25,64));
+        this.room.addBox(new Render.Box(0,0, 300,300), this.room.FarBgLayer, "#08f");
+        this.room.addBox(new Render.Box(25,100, 20,20), this.room.BgLayer, "#a00");
+        this.room.addBox(new Render.Box(75,100, 20,20), this.room.BgLayer, "#a00");
+        this.room.addBox(new Render.Box(125,100, 20,20), this.room.BgLayer, "#a00");
+        this.room.addBox(new Render.Box(50,70, 25,64), this.room.MainLayer);
+        this.room.addBox(new Render.Box(150,70, 25,64), this.room.MainLayer);
+        this.room.addBox(new Render.Box(250,70, 25,64), this.room.MainLayer);
 
         this.loop = new ECS.Loop(this.room, cx);
         this.loop.start();
