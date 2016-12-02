@@ -46,7 +46,7 @@ namespace Render {
             cx.save();
 
             cx.scale(scale, scale);
-            cx.translate(camera.x * parallax, camera.y * parallax);
+            cx.translate(-camera.x * parallax, -camera.y * parallax);
         };
         public exit(cx: CanvasRenderingContext2D) {
             cx.restore();
