@@ -103,10 +103,18 @@ class DebugRenderRoom extends ECS.Room {
         this.renderer.drawTo(cx);
     };
 
-    addBox(box: Render.Box, layer: Render.Layer, color = "#f00") {
+    addBox(
+        box: Render.Box,
+        layer: Render.Layer,
+        color = "#f00",
+        location: ECS.Location = null
+    ) {
         let entity: ECS.Entity & RenderDebug.HasBox = {
             RenderDebugBox: new RenderDebug.Box(layer, box, color)
         };
+        if(location) {
+            (entity as {} as ECS.HasLocation).Location = location;
+        }
         this.add(entity);
     };
 };
@@ -127,7 +135,12 @@ class RenderTest {
         this.room.addBox(new Render.Box(75,100, 20,20), this.room.BgLayer, "#a00");
         this.room.addBox(new Render.Box(125,100, 20,20), this.room.BgLayer, "#a00");
         this.room.addBox(new Render.Box(50,70, 25,64), this.room.MainLayer);
-        this.room.addBox(new Render.Box(150,70, 25,64), this.room.MainLayer);
+        this.room.addBox(
+            new Render.Box(0,0, 25,64),
+            this.room.MainLayer,
+            "#ff0",
+            new ECS.Location(150, 70, 0.5)
+        );
         this.room.addBox(new Render.Box(250,70, 25,64), this.room.MainLayer);
 
         this.loop = new ECS.Loop(this.room, cx);
