@@ -4,6 +4,7 @@
 
 namespace RenderDebug {
 
+    export var showDebug = false;
     export class Box implements Render.Renderable {
 
         public Location: ECS.Location = null;
@@ -15,12 +16,14 @@ namespace RenderDebug {
         ) {};
 
         public render(cx: CanvasRenderingContext2D) {
-            let b = this.bounds;
-            cx.fillStyle = this.color;
-            if(this.Location) {
-                this.Location.transformCx(cx);
+            if(showDebug) {
+                let b = this.bounds;
+                cx.fillStyle = this.color;
+                if(this.Location) {
+                    this.Location.transformCx(cx);
+                }
+                cx.fillRect(b.x, b.y, b.w, b.h);
             }
-            cx.fillRect(b.x, b.y, b.w, b.h);
         };
     };
 
