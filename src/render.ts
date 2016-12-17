@@ -10,9 +10,15 @@ namespace Render {
     /**
      * A thing that can be drawn.
      */
-    export interface Renderable {
-        Layer: Layer;
+    export interface Renderer {
         render(cx: CanvasRenderingContext2D);
+    };
+    export interface HasRenderer {
+        RenderAs: Renderer,
+        RenderLayer: Layer
+    };
+    export function HasRenderer(entity: any): entity is HasRenderer {
+        return entity.RenderAs != null && entity.RenderLayer != null;
     };
 
     /**
@@ -53,37 +59,34 @@ namespace Render {
         };
     };
 
+
+
     /**
-     * Buffer that collects items needing to be drawn, sorts them,
-     * and renders them.
+     * Collects items needing to be drawn, sort them,
+     * and render them.
      */
-    export class RenderList {
+    export function DrawTo(list: any[], cx: CanvasRenderingContext2D) {
 
-        private items: Renderable[] = [];
+        let renderableList: HasRenderer[] = list.filter(HasRenderer);
 
-        public reset() {
-            this.items.length = 0;
-        };
+        // sort list by layer z index
+        // TODO: individual item z-indexes
+        renderableList.sort((a, b) => {
+            return a.RenderLayer.z - b.RenderLayer.z;
+        });
 
-        public add(item: Renderable) {
-            this.items.push(item);
-        };
+        renderableList.map(entity => {
+            entity.RenderLayer.enter(cx);
 
-        public drawTo(cx: CanvasRenderingContext2D) {
-
-            // sort list by z index
-            this.items.sort((a, b) => {
-                return a.Layer.z - b.Layer.z;
-            });
-
-            // draw everything
-            for(let item of this.items) {
-                item.Layer.enter(cx);
-                item.render(cx);
-                item.Layer.exit(cx);
+            if(ECS.HasLocation(entity)) {
+                entity.Location.transformCx(cx);
             }
 
-        };
+            entity.RenderAs.render(cx);
+
+            entity.RenderLayer.exit(cx);
+        });
+
     };
 
 };
