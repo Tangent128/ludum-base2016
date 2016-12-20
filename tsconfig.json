@@ -5,6 +5,7 @@
         "outFile": "build/base.js"
     },
     "files": [
+        "amd-stub.ts",
         "src/index.ts"
     ]
 }
