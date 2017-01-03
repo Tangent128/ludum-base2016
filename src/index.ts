@@ -4,3 +4,4 @@
 /// <reference path="ecs-common.ts" />
 /// <reference path="ecs-pin.ts" />
 /// <reference path="render-debug.ts" />
+/// <reference path="render-image.ts" />
