@@ -1,5 +1,15 @@
 /// <reference path="../build/base.d.ts" />
 
+import * as Applet from "src/applet";
+
+import * as ECS from "src/ecs";
+import { Location, HasLocation } from "src/ecs-common";
+import * as EcsPin from "src/ecs-pin";
+
+import * as Render from "src/render";
+import * as RenderDebug from "src/render-debug";
+import * as RenderImage from "src/render-image";
+
 interface ElementEntity {
     htmlElement: HTMLElement;
 };
@@ -62,15 +72,11 @@ class SpanTest {
 ///////////////////////
 
 class DebugRenderRoom extends ECS.Room {
-    private renderer = new Render.RenderList();
-
     public Camera = new Render.Camera();
 
     public FarBgLayer = new Render.Layer(1, 0);
     public BgLayer = new Render.Layer(8, 0.5);
     public MainLayer = new Render.Layer(10, 1);
-
-    private DebugRenderSystem = new RenderDebug.System(this.renderer);
 
     constructor(fps: number) {
         super(fps);
@@ -96,24 +102,21 @@ class DebugRenderRoom extends ECS.Room {
         this.Camera.zoom = 1 + this.t/20;
     };
     runRender(cx: CanvasRenderingContext2D) {
-        this.renderer.reset();
-
-        this.DebugRenderSystem.run(this.Entities);
-
-        this.renderer.drawTo(cx);
+        Render.DrawTo(this.Entities, cx);
     };
 
     addBox(
         box: Render.Box,
         layer: Render.Layer,
         color = "#f00",
-        location: ECS.Location = null
+        location: Location = null
     ) {
-        let entity: ECS.Entity & RenderDebug.HasBox = {
-            RenderDebugBox: new RenderDebug.Box(layer, box, color)
+        let entity: ECS.Entity & Render.HasRenderer = {
+            RenderAs: new RenderDebug.Box(box, color),
+            RenderLayer: layer
         };
         if(location) {
-            (entity as {} as ECS.HasLocation).Location = location;
+            (entity as {} as HasLocation).Location = location;
         }
         this.add(entity);
     };
@@ -139,7 +142,7 @@ class RenderTest {
             new Render.Box(0,0, 25,64),
             this.room.MainLayer,
             "#ff0",
-            new ECS.Location(150, 70, 0.5)
+            new Location(150, 70, 0.5)
         );
         this.room.addBox(new Render.Box(250,70, 25,64), this.room.MainLayer);
 

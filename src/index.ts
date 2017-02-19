@@ -1,7 +1,9 @@
-/// <reference path="applet.ts" />
-/// <reference path="ecs.ts" />
-/// <reference path="render.ts" />
-/// <reference path="ecs-common.ts" />
-/// <reference path="ecs-pin.ts" />
-/// <reference path="render-debug.ts" />
-/// <reference path="render-image.ts" />
+import * as Applet from "./applet";
+
+import * as ECS from "./ecs";
+import * as EcsCommon from "./ecs-common";
+import * as EcsPin from "./ecs-pin";
+
+import * as Render from "./render";
+import * as RenderDebug from "./render-debug";
+import * as RenderImage from "./render-image";

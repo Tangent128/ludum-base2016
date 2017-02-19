@@ -1,120 +1,116 @@
-namespace ECS {
+export interface Entity {
+    deleted?: boolean;
+};
 
-    export interface Entity {
-        deleted?: boolean;
+export abstract class System<Type> {
+
+    constructor(
+        private filter: (item) => item is Type
+    ) {};
+
+    public run(list: Entity[]) {
+        this.start();
+
+        for(let item of list) {
+            if(!item.deleted && this.filter(item)) {
+                this.process(item);
+            }
+        }
+
+        this.finish();
     };
 
-    export abstract class System<Type> {
+    public abstract process(item: Type);
 
-        constructor(
-            private filter: (item) => item is Type
-        ) {};
+    public start() {
+        // can optionally be implemented
+    };
+    public finish() {
+        // can optionally be implemented
+    };
+};
 
-        public run(list: Entity[]) {
-            this.start();
+/**
+ * A "space" containing Entities & run functions for systems 
+ */
+export abstract class Room {
+    lastPhysicsTick = 0;
+    public Entities: Entity[] = [];
 
-            for(let item of list) {
-                if(!item.deleted && this.filter(item)) {
-                    this.process(item);
-                }
-            }
-
-            this.finish();
-        };
-
-        public abstract process(item: Type);
-
-        public start() {
-            // can optionally be implemented
-        };
-        public finish() {
-            // can optionally be implemented
-        };
+    constructor(public fps: number) {
     };
 
-    /**
-     * A "space" containing Entities & run functions for systems 
-     */
-    export abstract class Room {
-        lastPhysicsTick = 0;
-        public Entities: Entity[] = [];
-
-        constructor(public fps: number) {
-        };
-
-        public add(entity: any) {
-            this.Entities.push(entity);
-        };
-
-        cleanup() {
-            this.Entities = this.Entities.filter(entity => !entity.deleted);
-        };
-
-        public abstract runPhysics();
-        public abstract runRender(cx: CanvasRenderingContext2D);
+    public add(entity: any) {
+        this.Entities.push(entity);
     };
 
+    cleanup() {
+        this.Entities = this.Entities.filter(entity => !entity.deleted);
+    };
 
-    /**
-     * Toplevel game/animation loop
-     */
-    export class Loop {
+    public abstract runPhysics();
+    public abstract runRender(cx: CanvasRenderingContext2D);
+};
 
-        private physicsTimeout: number = null;
-        private renderTimeout: number = null;
 
-        constructor(
-            private room: Room,
-            private cx: CanvasRenderingContext2D
-        ) {
-        };
+/**
+ * Toplevel game/animation loop
+ */
+export class Loop {
 
-        public start() {
-            if(this.physicsTimeout == null) {
-                let interval = 1000 / this.room.fps;
-                this.physicsTimeout = window.setTimeout(() => {
-                    this.physicsTimeout = null;
-                    this.physicsTick();
-                }, interval);
-            }
-            if(this.renderTimeout == null) {
-                this.renderTimeout = window.requestAnimationFrame(() => {
-                    this.renderTimeout = null;
-                    this.renderTick();
-                });
-            }
-        };
+    private physicsTimeout: number = null;
+    private renderTimeout: number = null;
 
-        public stop() {
-            if(this.physicsTimeout != null) {
-                window.clearTimeout(this.physicsTimeout);
+    constructor(
+        private room: Room,
+        private cx: CanvasRenderingContext2D
+    ) {
+    };
+
+    public start() {
+        if(this.physicsTimeout == null) {
+            let interval = 1000 / this.room.fps;
+            this.physicsTimeout = window.setTimeout(() => {
                 this.physicsTimeout = null;
-            }
-            if(this.renderTimeout != null) {
-                window.cancelAnimationFrame(this.renderTimeout);
+                this.physicsTick();
+            }, interval);
+        }
+        if(this.renderTimeout == null) {
+            this.renderTimeout = window.requestAnimationFrame(() => {
                 this.renderTimeout = null;
-            }
-        };
+                this.renderTick();
+            });
+        }
+    };
 
-        private physicsTick() {
-            let now = (new Date()).getTime();
+    public stop() {
+        if(this.physicsTimeout != null) {
+            window.clearTimeout(this.physicsTimeout);
+            this.physicsTimeout = null;
+        }
+        if(this.renderTimeout != null) {
+            window.cancelAnimationFrame(this.renderTimeout);
+            this.renderTimeout = null;
+        }
+    };
 
-            this.room.runPhysics();
+    private physicsTick() {
+        let now = (new Date()).getTime();
 
-            this.room.lastPhysicsTick = now;
+        this.room.runPhysics();
 
-            // schedule next tick
-            this.start();
-        };
-        private renderTick() {
-            let now = (new Date()).getTime();
+        this.room.lastPhysicsTick = now;
 
-            this.room.runRender(this.cx);
+        // schedule next tick
+        this.start();
+    };
+    private renderTick() {
+        let now = (new Date()).getTime();
 
-            // schedule next tick
-            this.start();
-        };
+        this.room.runRender(this.cx);
 
+        // schedule next tick
+        this.start();
     };
 
 };
